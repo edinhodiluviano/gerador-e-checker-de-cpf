@@ -1,1 +1,1 @@
-from .main import checar, gerar
+from .main import checar, formatar, gerar

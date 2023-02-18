@@ -35,7 +35,20 @@ def _calc_dv(cpf: str) -> str:
     return cpf[-2:]
 
 
-def checar(cpf: str, regiao: bool = False):
+def formatar(cpf: str) -> str:
+    """Limpa o cpf de pontos e hifens e adiciona zeros à esquerda."""
+    cpf = cpf.replace(".", "").replace("-", "")
+
+    if len(cpf) < 11:
+        cpf = cpf.zfill(11)
+    elif len(cpf) > 11:
+        msg = f"O CPF deve ter 11 dígitos. Mas {len(cpf)} dígitos foram dados"
+        raise ValueError(msg)
+
+    return cpf
+
+
+def checar(cpf: str, regiao: bool = False) -> bool:
     """
     Verifica se o CPF dado tem os dígitos verificadores válidos.
 
@@ -45,13 +58,9 @@ def checar(cpf: str, regiao: bool = False):
     retornado em ``stdout``.
     ``False`` é o valor padrão e a região não será checada.
     """
-    # limpa o cpf de pontos e hifens 000.000.000-00
-    if "." in cpf and "-" in cpf:
-        cpf = cpf.replace(".", "").replace("-", "")
-
-    if len(cpf) < 11:
-        cpf = cpf.zfill(11)
-    elif len(cpf) > 11:
+    try:
+        cpf = formatar(cpf)
+    except ValueError:
         return False
 
     regiao_dict = {
