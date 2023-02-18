@@ -103,3 +103,14 @@ print(cpf.gerar(7,3))
 - [ ] Escolher formatar ou não os CPFs gerados
 - [ ] Opção de região por nome ao invés de números
 - [ ] Versão em API
+
+
+# Changelog
+3.0.0a (??/??/????)
+------------------
+> remove setup.py and other files from the old structure
+> add pyproject.toml
+
+2.0 (20/01/2021)
+------------------
+> Released as a package
