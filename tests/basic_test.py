@@ -113,3 +113,83 @@ for i in cpfs_validos:
 @pytest.mark.parametrize("original,formatado", cpfs_enfeitados)
 def test_formatacao_de_cpf(original, formatado):
     assert cpf.formatar(formatado) == original
+
+
+seeds = list(range(100))
+
+
+@pytest.mark.parametrize("seed", seeds)
+def test_gerar_um_sem_regiao_retorn_cpf_valido(seed):
+    cpf_gerado = cpf.gerar_um(seed=seed)
+    assert cpf.checar(cpf_gerado) is True
+
+
+regioes = list(range(10))
+
+
+@pytest.mark.parametrize("regiao", regioes)
+@pytest.mark.parametrize("seed", seeds[::17])
+def test_gerar_um_com_regiao_retorn_cpf_valido(regiao, seed):
+    cpf_gerado = cpf.gerar_um(regiao=regiao, seed=seed)
+    assert cpf.checar(cpf_gerado) is True
+
+
+@pytest.mark.parametrize("regiao", regioes)
+@pytest.mark.parametrize("seed", seeds[::17])
+def test_gerar_um_com_regiao_retorn_cpf_da_regiao(regiao, seed):
+    cpf_gerado = cpf.gerar_um(regiao=regiao, seed=seed)
+    assert cpf_gerado[-3] == str(regiao)
+
+
+@pytest.mark.parametrize("seed", seeds[::17])
+def test_gerar_com_seed_retorna_list(seed):
+    resp = cpf.gerar(seed=seed)
+    assert isinstance(resp, list)
+
+
+def test_gerar_sem_seed_retorna_list():
+    resp = cpf.gerar()
+    assert isinstance(resp, list)
+
+
+@pytest.mark.parametrize("seed", seeds[::17])
+def test_gerar_10_com_seed_retorna_list_com_len_10(seed):
+    resp = cpf.gerar(quantidade=10)
+    assert len(resp) == 10
+
+
+def test_gerar_10_sem_seed_retorna_list_com_len_10():
+    resp = cpf.gerar(quantidade=10)
+    assert len(resp) == 10
+
+
+def test_gerar_10_sem_seed_retorna_list_10_cpfs_validos():
+    resp = cpf.gerar(quantidade=10)
+    for i in resp:
+        assert cpf.checar(i) is True
+
+
+@pytest.mark.parametrize("seed", seeds[::17])
+def test_gerar_10_com_seed_retorna_list_10_cpfs_validos(seed):
+    resp = cpf.gerar(quantidade=10, seed=seed)
+    for i in resp:
+        assert cpf.checar(i) is True
+
+
+@pytest.mark.parametrize("seed", seeds[::17])
+def test_gerar_10_com_seed_retorna_list_10_cpfs_unicos(seed):
+    resp = cpf.gerar(quantidade=10, seed=seed)
+    assert len(set(resp)) == 10
+
+
+def test_gerar_10_sem_seed_com_regiao_retorna_list_10_cpfs_da_regiao():
+    resp = cpf.gerar(quantidade=10, regiao=5)
+    for i in resp:
+        assert i[-3] == "5"
+
+
+@pytest.mark.parametrize("seed", seeds[::17])
+def test_gerar_10_com_seed_com_regiao_retorna_list_10_cpfs_da_regiao(seed):
+    resp = cpf.gerar(quantidade=10, seed=seed, regiao=5)
+    for i in resp:
+        assert i[-3] == "5"

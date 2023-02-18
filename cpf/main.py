@@ -84,42 +84,58 @@ def checar(cpf: str, regiao: bool = False) -> bool:
     return dv == cpf[-2:]
 
 
-def gerar(quantidade=1, regiao=-1):
-    """Gera um CPF aleatório.
-    Retorna uma lista com os CPFs gerados (já checados).
-    ``quantidade`` é um parametro ``int`` que remete a quantos CPFs serão gerados. ``1`` é o valor padrão e será gerado apenas 1 CPF.
-    ``regiao`` é um parametro ``int`` que remete à região cujos CPFs serão gerados. ``-1`` é o valor padrão e será utilizado uma região aleatória.
-
-    Regiôes:
-    -----------
-         0:  Rio Grande do Sul
-         1:  Distrito Federal – Goiás – Mato Grosso – Mato Grosso do Sul – Tocantins
-         2:  Pará – Amazonas – Acre – Amapá – Rondônia – Roraima
-         3:  Ceará – Maranhão – Piauí
-         4:  Pernambuco – Rio Grande do Norte – Paraíba – Alagoas
-         5:  Bahia – Sergipe
-         6:  Minas Gerais
-         7:  Rio de Janeiro – Espírito Santo
-         8:  São Paulo
-         9: Paraná – Santa Catarina
+def gerar_um(regiao: int = None, seed: int = None) -> str:
     """
-    valid_rcpf = []
-    valid_cpfs = []
-    while len(valid_rcpf) != quantidade:
-        raw_cpfs = []
-        for i in range(quantidade):
-            rcpf = ""
-            for x in range(11):
-                if x == 8:
-                    if regiao == -1:
-                        rcpf += str(random.randint(0, 9))
-                    else:
-                        rcpf += str(regiao)
-                else:
-                    rcpf += str(random.randint(0, 9))
-            raw_cpfs.append(rcpf)
-            if checar(raw_cpfs[i],False):
-                valid_rcpf.append(raw_cpfs[i])
-    for i in range(len(valid_rcpf)):
-        valid_cpfs.append(valid_rcpf[i][:3]+"."+valid_rcpf[i][3:6]+"."+valid_rcpf[i][6:9]+"-"+valid_rcpf[i][9::])  # NOQA E226
-    return valid_cpfs
+    Gera um CPF aleatório para a região especificada e com a seed dada.
+
+    Regiões:
+    -----------
+     0: Rio Grande do Sul
+     1: Distrito Federal – Goiás – Mato Grosso – Mato Grosso do Sul – Tocantins
+     2: Pará – Amazonas – Acre – Amapá – Rondônia – Roraima
+     3: Ceará – Maranhão – Piauí
+     4: Pernambuco – Rio Grande do Norte – Paraíba – Alagoas
+     5: Bahia – Sergipe
+     6: Minas Gerais
+     7: Rio de Janeiro – Espírito Santo
+     8: São Paulo
+     9: Paraná – Santa Catarina
+    """
+    if regiao is None:
+        raiz_int = random.Random(seed).randint(0, 999_999_999)
+    else:
+        raiz_int = random.Random(seed).randint(0, 99_999_999)
+        raiz_int = raiz_int * 10 + regiao
+    raiz_str = str(raiz_int).zfill(9)
+    dv = _calc_dv(raiz_str)
+    cpf = raiz_str + dv
+    return cpf
+
+
+def gerar(quantidade: int = 1, regiao: int = None, seed: int = None) -> list:
+    """
+    Gera varios CPFs aleatórios para a região especificada e com a seed dada.
+
+    ``quantidade`` é um ``int`` que especifica a quantos CPFs serão gerados.
+    Se não for fornecido, apenas 1 CPF será gerado.
+    ``regiao`` é um ``int`` que especifica a região cujos CPFs serão gerados.
+    Se não for fornecido, uma região aleatória sera usada.
+
+    Regiões:
+    -----------
+     0: Rio Grande do Sul
+     1: Distrito Federal – Goiás – Mato Grosso – Mato Grosso do Sul – Tocantins
+     2: Pará – Amazonas – Acre – Amapá – Rondônia – Roraima
+     3: Ceará – Maranhão – Piauí
+     4: Pernambuco – Rio Grande do Norte – Paraíba – Alagoas
+     5: Bahia – Sergipe
+     6: Minas Gerais
+     7: Rio de Janeiro – Espírito Santo
+     8: São Paulo
+     9: Paraná – Santa Catarina
+    """
+    if seed is None:
+        cpfs = [gerar_um(regiao) for _ in range(quantidade)]
+    else:
+        cpfs = [gerar_um(regiao, seed + i) for i in range(quantidade)]
+    return cpfs
