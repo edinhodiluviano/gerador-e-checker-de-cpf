@@ -1,3 +1,5 @@
+import random
+
 import pytest
 
 import cpf
@@ -115,12 +117,12 @@ def test_formatacao_de_cpf(original, formatado):
     assert cpf.formatar(formatado) == original
 
 
-seeds = list(range(100))
+seeded_randoms = [random.Random(seed) for seed in range(100)]
 
 
-@pytest.mark.parametrize("seed", seeds)
-def test_gerar_um_sem_regiao_retorn_cpf_valido(seed):
-    cpf_gerado = cpf.gerar_um(seed=seed)
+@pytest.mark.parametrize("seeded_random", seeded_randoms)
+def test_gerar_um_sem_regiao_retorn_cpf_valido(seeded_random):
+    cpf_gerado = cpf.gerar_um(seeded_random=seeded_random)
     assert cpf.checar(cpf_gerado) is True
 
 
@@ -128,22 +130,22 @@ regioes = list(range(10))
 
 
 @pytest.mark.parametrize("regiao", regioes)
-@pytest.mark.parametrize("seed", seeds[::17])
-def test_gerar_um_com_regiao_retorn_cpf_valido(regiao, seed):
-    cpf_gerado = cpf.gerar_um(regiao=regiao, seed=seed)
+@pytest.mark.parametrize("seeded_random", seeded_randoms[::17])
+def test_gerar_um_com_regiao_retorn_cpf_valido(regiao, seeded_random):
+    cpf_gerado = cpf.gerar_um(regiao=regiao, seeded_random=seeded_random)
     assert cpf.checar(cpf_gerado) is True
 
 
 @pytest.mark.parametrize("regiao", regioes)
-@pytest.mark.parametrize("seed", seeds[::17])
-def test_gerar_um_com_regiao_retorn_cpf_da_regiao(regiao, seed):
-    cpf_gerado = cpf.gerar_um(regiao=regiao, seed=seed)
+@pytest.mark.parametrize("seeded_random", seeded_randoms[::17])
+def test_gerar_um_com_regiao_retorn_cpf_da_regiao(regiao, seeded_random):
+    cpf_gerado = cpf.gerar_um(regiao=regiao, seeded_random=seeded_random)
     assert cpf_gerado[-3] == str(regiao)
 
 
-@pytest.mark.parametrize("seed", seeds[::17])
-def test_gerar_com_seed_retorna_list(seed):
-    resp = cpf.gerar(seed=seed)
+@pytest.mark.parametrize("seeded_random", seeded_randoms[::17])
+def test_gerar_com_seed_retorna_list(seeded_random):
+    resp = cpf.gerar(seeded_random=seeded_random)
     assert isinstance(resp, list)
 
 
@@ -152,8 +154,8 @@ def test_gerar_sem_seed_retorna_list():
     assert isinstance(resp, list)
 
 
-@pytest.mark.parametrize("seed", seeds[::17])
-def test_gerar_10_com_seed_retorna_list_com_len_10(seed):
+@pytest.mark.parametrize("seeded_random", seeded_randoms[::17])
+def test_gerar_10_com_seed_retorna_list_com_len_10(seeded_random):
     resp = cpf.gerar(quantidade=10)
     assert len(resp) == 10
 
@@ -169,16 +171,21 @@ def test_gerar_10_sem_seed_retorna_list_10_cpfs_validos():
         assert cpf.checar(i) is True
 
 
-@pytest.mark.parametrize("seed", seeds[::17])
-def test_gerar_10_com_seed_retorna_list_10_cpfs_validos(seed):
-    resp = cpf.gerar(quantidade=10, seed=seed)
+@pytest.mark.parametrize("seeded_random", seeded_randoms[::17])
+def test_gerar_10_com_seed_retorna_list_10_cpfs_validos(seeded_random):
+    resp = cpf.gerar(quantidade=10, seeded_random=seeded_random)
     for i in resp:
         assert cpf.checar(i) is True
 
 
-@pytest.mark.parametrize("seed", seeds[::17])
-def test_gerar_10_com_seed_retorna_list_10_cpfs_unicos(seed):
-    resp = cpf.gerar(quantidade=10, seed=seed)
+@pytest.mark.parametrize("seeded_random", seeded_randoms[::17])
+def test_gerar_10_com_seed_retorna_list_10_cpfs_unicos(seeded_random):
+    resp = cpf.gerar(quantidade=10, seeded_random=seeded_random)
+    assert len(set(resp)) == 10
+
+
+def test_gerar_10_sem_seed_retorna_list_10_cpfs_unicos():
+    resp = cpf.gerar(quantidade=10)
     assert len(set(resp)) == 10
 
 
@@ -188,8 +195,16 @@ def test_gerar_10_sem_seed_com_regiao_retorna_list_10_cpfs_da_regiao():
         assert i[-3] == "5"
 
 
-@pytest.mark.parametrize("seed", seeds[::17])
-def test_gerar_10_com_seed_com_regiao_retorna_list_10_cpfs_da_regiao(seed):
-    resp = cpf.gerar(quantidade=10, seed=seed, regiao=5)
+@pytest.mark.parametrize("seeded_random", seeded_randoms[::17])
+def test_gerar_10_com_seed_com_regiao_retorna_list_10_cpfs_da_regiao(
+    seeded_random,
+):
+    resp = cpf.gerar(quantidade=10, seeded_random=seeded_random, regiao=5)
     for i in resp:
         assert i[-3] == "5"
+
+
+def test_gerar_um_com_mesmo_seed_gera_mesmo_cpf():
+    cpf1 = cpf.gerar_um(seeded_random=random.Random(1))
+    cpf2 = cpf.gerar_um(seeded_random=random.Random(1))
+    assert cpf1 == cpf2

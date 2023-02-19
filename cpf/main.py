@@ -84,7 +84,7 @@ def checar(cpf: str, regiao: bool = False) -> bool:
     return dv == cpf[-2:]
 
 
-def gerar_um(regiao: int = None, seed: int = None) -> str:
+def gerar_um(regiao: int = None, seeded_random: random.Random = None) -> str:
     """
     Gera um CPF aleatório para a região especificada e com a seed dada.
 
@@ -101,10 +101,19 @@ def gerar_um(regiao: int = None, seed: int = None) -> str:
      8: São Paulo
      9: Paraná – Santa Catarina
     """
+    # raiz_int = random.randint(0, 999_999_999)
+    # raiz_str = str(raiz_int).zfill(9)
+    # dv = _calc_dv(raiz_str)
+    # cpf = raiz_str + dv
+    # return cpf
+
+    if seeded_random is None:
+        seeded_random = random
+
     if regiao is None:
-        raiz_int = random.Random(seed).randint(0, 999_999_999)
+        raiz_int = seeded_random.randint(0, 999_999_999)
     else:
-        raiz_int = random.Random(seed).randint(0, 99_999_999)
+        raiz_int = seeded_random.randint(0, 99_999_999)
         raiz_int = raiz_int * 10 + regiao
     raiz_str = str(raiz_int).zfill(9)
     dv = _calc_dv(raiz_str)
@@ -112,7 +121,11 @@ def gerar_um(regiao: int = None, seed: int = None) -> str:
     return cpf
 
 
-def gerar(quantidade: int = 1, regiao: int = None, seed: int = None) -> list:
+def gerar(
+    quantidade: int = 1,
+    regiao: int = None,
+    seeded_random: random.Random = None,
+) -> list:
     """
     Gera varios CPFs aleatórios para a região especificada e com a seed dada.
 
@@ -134,8 +147,5 @@ def gerar(quantidade: int = 1, regiao: int = None, seed: int = None) -> list:
      8: São Paulo
      9: Paraná – Santa Catarina
     """
-    if seed is None:
-        cpfs = [gerar_um(regiao) for _ in range(quantidade)]
-    else:
-        cpfs = [gerar_um(regiao, seed + i) for i in range(quantidade)]
+    cpfs = [gerar_um(regiao, seeded_random) for i in range(quantidade)]
     return cpfs
